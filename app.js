@@ -62,7 +62,7 @@ function renderMore() {
             <div class="card-tag">${article.type} • ст. ${article.articleNumber}</div>
             <h3>${article.title}</h3>
             <p class="preview-text">${article.content.substring(0, 150)}...</p>
-            <div class="punishment-badge">⚖️ ${article.punishment.length > 30 ? 'Санкция' : article.punishment}</div>
+            <div class="punishment-badge">⚖️ ${article.punishment.length > 25 ? 'Санкция' : article.punishment}</div>
         `;
         card.onclick = () => openArticle(article);
         fragment.appendChild(card);
