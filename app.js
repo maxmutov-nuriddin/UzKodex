@@ -59,10 +59,10 @@ function renderMore() {
         const card = document.createElement('div');
         card.className = 'article-card';
         card.innerHTML = `
-            <div class="card-tag">${article.type} • Статья ${article.articleNumber}</div>
+            <div class="card-tag">${article.type} • ст. ${article.articleNumber}</div>
             <h3>${article.title}</h3>
             <p class="preview-text">${article.content.substring(0, 150)}...</p>
-            ${article.punishment ? `<div class="punishment-badge">⚖️ Наказание предусмотрено</div>` : ''}
+            ${article.punishment ? `<div class="punishment-badge">⚖️ Наказание</div>` : ''}
         `;
         card.onclick = () => openArticle(article);
         fragment.appendChild(card);
@@ -71,6 +71,9 @@ function renderMore() {
     virtualList.appendChild(fragment);
     currentIndex += ITEMS_PER_PAGE;
 }
+
+// Add focus on load
+window.onload = () => searchInput.focus();
 
 // Infinite Scroll
 virtualList.parentElement.onscroll = (e) => {
@@ -97,8 +100,8 @@ function handleSearch() {
         
         const matchesType = 
             typeFilter === 'all' || 
-            (typeFilter === 'uk' && article.type === 'УК') ||
-            (typeFilter === 'ak' && article.type === 'АК');
+            (typeFilter === 'uk' && article.type === 'Уголовный кодекс') ||
+            (typeFilter === 'ak' && article.type === 'Административный кодекс');
             
         return matchesQuery && matchesType;
     });
