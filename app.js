@@ -62,7 +62,7 @@ function renderMore() {
             <div class="card-tag">${article.type} • ст. ${article.articleNumber}</div>
             <h3>${article.title}</h3>
             <p class="preview-text">${article.content.substring(0, 150)}...</p>
-            ${article.punishment ? `<div class="punishment-badge">⚖️ Наказание</div>` : ''}
+            <div class="punishment-badge">⚖️ ${article.punishment.length > 30 ? 'Санкция' : article.punishment}</div>
         `;
         card.onclick = () => openArticle(article);
         fragment.appendChild(card);
@@ -135,12 +135,10 @@ function openArticle(article) {
         <div class="card-tag">${article.type}</div>
         <h2>Статья ${article.articleNumber}. ${article.title}</h2>
         <p>${article.content.replace(/\n/g, '<br>')}</p>
-        ${article.punishment ? `
-            <div class="full-punishment">
-                <strong>Наказание:</strong><br>
-                ${article.punishment}
-            </div>
-        ` : ''}
+        <div class="full-punishment">
+            <strong>Правовое последствие:</strong><br>
+            ${article.punishment}
+        </div>
     `;
     modalOverlay.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
