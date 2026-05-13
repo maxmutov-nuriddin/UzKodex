@@ -155,16 +155,18 @@ virtualList.parentElement.onscroll = (e) => {
 
 // Search & Filter
 function handleSearch() {
-    const query = searchInput.value.toLowerCase().trim();
+    const normalize = (str) => str.replace(/[ʻʼ`']/g, "'").toLowerCase();
+    const query = normalize(searchInput.value).trim();
     const typeFilter = document.querySelector('.filter-btn.active').dataset.type;
     
     clearSearchBtn.classList.toggle('hidden', query === '');
 
     filteredArticles = articles.filter(article => {
-        const matchesQuery = 
-            article.articleNumber.toString().includes(query) ||
-            article.title.toLowerCase().includes(query) ||
-            article.content.toLowerCase().includes(query);
+        const searchPool = normalize(`${article.articleNumber} ${article.title} ${article.content} ${article.punishment}`);
+        if (!query) return true;
+        const keywords = query.split(/\s+/).filter(k => k.length > 0);
+        
+        const matchesQuery = keywords.every(word => searchPool.includes(word));
         
         const matchesType = 
             typeFilter === 'all' || 
