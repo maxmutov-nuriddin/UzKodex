@@ -97,8 +97,8 @@ function handleSearch() {
         
         const matchesType = 
             typeFilter === 'all' || 
-            (typeFilter === 'uk' && article.type === 'Уголовный кодекс') ||
-            (typeFilter === 'ak' && article.type === 'Административный кодекс');
+            (typeFilter === 'uk' && article.type === 'УК') ||
+            (typeFilter === 'ak' && article.type === 'АК');
             
         return matchesQuery && matchesType;
     });
