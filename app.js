@@ -5,13 +5,48 @@
 let articles = [];
 let filteredArticles = [];
 let currentIndex = 0;
+let currentLang = 'ru';
 const ITEMS_PER_PAGE = 20;
 let searchTimeout;
+
+const translations = {
+    ru: {
+        placeholder: "Поиск: № статьи, название, наказание...",
+        all: "Все",
+        uk: "Уголовный кодекс РУз",
+        ak: "Кодекс об адм. ответственности",
+        loading: "Загрузка статей...",
+        results: "Найдено статей: ",
+        empty: "Ничего не найдено",
+        emptyDesc: "Попробуйте изменить запрос или фильтры",
+        legalConsequence: "Правовое последствие:",
+        sanction: "Санкция",
+        dbLoaded: "База данных загружена",
+        dbError: "Ошибка загрузки данных",
+        logoSubtitle: "Все кодексы в 1 месте"
+    },
+    uz: {
+        placeholder: "Qidiruv: modda №, nomi, jazo...",
+        all: "Barchasi",
+        uk: "Jinoyat kodeksi",
+        ak: "Maʼmuriy javobgarlik kodeksi",
+        loading: "Moddalar yuklanmoqda...",
+        results: "Topilgan moddalar: ",
+        empty: "Hech narsa topilmadi",
+        emptyDesc: "Qidiruv so'zini yoki filtrlarni o'zgartirib ko'ring",
+        legalConsequence: "Huquqiy oqibat:",
+        sanction: "Sanksiya",
+        dbLoaded: "Ma'lumotlar yuklandi",
+        dbError: "Yuklashda xatolik yuz berdi",
+        logoSubtitle: "Barcha kodekslar 1 joyda"
+    }
+};
 
 // DOM Elements
 const searchInput = document.getElementById('search-input');
 const clearSearchBtn = document.getElementById('clear-search');
 const filterBtns = document.querySelectorAll('.filter-btn');
+const langBtns = document.querySelectorAll('.lang-btn');
 const virtualList = document.getElementById('virtual-list');
 const resultsCount = document.getElementById('results-count');
 const emptyState = document.getElementById('empty-state');
@@ -23,19 +58,50 @@ const toastContainer = document.getElementById('toast-container');
 
 // Init
 async function init() {
+    const dbFile = currentLang === 'ru' ? 'database.json' : 'database_uz.json';
     try {
-        const response = await fetch('database.json');
+        virtualList.innerHTML = `<div class="loading-state">${translations[currentLang].loading}</div>`;
+        loadingSkeletons.classList.remove('hidden');
+        const response = await fetch(dbFile);
         articles = await response.json();
         filteredArticles = [...articles];
         
         loadingSkeletons.classList.add('hidden');
         renderInitial();
         updateResultsCount();
-        showToast('База данных загружена');
+        showToast(translations[currentLang].dbLoaded);
     } catch (error) {
         console.error('Failed to load articles:', error);
-        showToast('Ошибка загрузки данных', 'error');
+        showToast(translations[currentLang].dbError, 'error');
     }
+}
+
+// Language Switcher
+langBtns.forEach(btn => {
+    btn.onclick = () => {
+        if (btn.classList.contains('active')) return;
+        langBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentLang = btn.dataset.lang;
+        updateUITranslations();
+        init(); // Re-load data for new language
+    };
+});
+
+function updateUITranslations() {
+    const t = translations[currentLang];
+    searchInput.placeholder = t.placeholder;
+    resultsCount.textContent = t.loading;
+    
+    filterBtns.forEach(btn => {
+        if (btn.dataset.type === 'all') btn.textContent = t.all;
+        if (btn.dataset.type === 'uk') btn.textContent = t.uk;
+        if (btn.dataset.type === 'ak') btn.textContent = t.ak;
+    });
+
+    emptyState.querySelector('h3').textContent = t.empty;
+    emptyState.querySelector('p').textContent = t.emptyDesc;
+    document.getElementById('logo-subtitle').textContent = t.logoSubtitle;
 }
 
 // Rendering
@@ -58,11 +124,13 @@ function renderMore() {
     nextBatch.forEach(article => {
         const card = document.createElement('div');
         card.className = 'article-card';
+        const t = translations[currentLang];
+        const moddaPrefix = currentLang === 'ru' ? 'ст.' : 'modda';
         card.innerHTML = `
-            <div class="card-tag">${article.type} • ст. ${article.articleNumber}</div>
+            <div class="card-tag">${article.type} • ${moddaPrefix} ${article.articleNumber}</div>
             <h3>${article.title}</h3>
             <p class="preview-text">${article.content.substring(0, 150)}...</p>
-            <div class="punishment-badge">⚖️ ${article.punishment.length > 25 ? 'Санкция' : article.punishment}</div>
+            <div class="punishment-badge">⚖️ ${article.punishment.length > 25 ? t.sanction : article.punishment}</div>
         `;
         card.onclick = () => openArticle(article);
         fragment.appendChild(card);
@@ -100,8 +168,8 @@ function handleSearch() {
         
         const matchesType = 
             typeFilter === 'all' || 
-            (typeFilter === 'uk' && article.type === 'Уголовный кодекс') ||
-            (typeFilter === 'ak' && article.type === 'Административный кодекс');
+            (typeFilter === 'uk' && (article.type.includes('Уголовный') || article.type.includes('Jinoyat'))) ||
+            (typeFilter === 'ak' && (article.type.includes('Административный') || article.type.includes('Maʼmuriy') || article.type.includes('адм.')));
             
         return matchesQuery && matchesType;
     });
@@ -133,10 +201,10 @@ filterBtns.forEach(btn => {
 function openArticle(article) {
     modalContent.innerHTML = `
         <div class="card-tag">${article.type}</div>
-        <h2>Статья ${article.articleNumber}. ${article.title}</h2>
+        <h2>${currentLang === 'ru' ? 'Статья' : 'Modda'} ${article.articleNumber}. ${article.title}</h2>
         <p>${article.content.replace(/\n/g, '<br>')}</p>
         <div class="full-punishment">
-            <strong>Правовое последствие:</strong><br>
+            <strong>${translations[currentLang].legalConsequence}</strong><br>
             ${article.punishment}
         </div>
     `;
@@ -155,7 +223,7 @@ modalOverlay.onclick = (e) => {
 
 // UI Helpers
 function updateResultsCount() {
-    resultsCount.textContent = `Найдено статей: ${filteredArticles.length}`;
+    resultsCount.textContent = translations[currentLang].results + filteredArticles.length;
 }
 
 function showToast(message, type = 'info') {

@@ -92,6 +92,32 @@ header {
     margin-top: -2px;
 }
 
+.lang-switch {
+    margin-left: auto;
+    display: flex;
+    background: var(--card-bg);
+    padding: 4px;
+    border-radius: 10px;
+    border: 1px solid var(--glass-border);
+}
+
+.lang-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+.lang-btn.active {
+    background: var(--accent-blue);
+    color: white;
+}
+
 .search-wrapper {
     display: flex;
     flex-direction: column;

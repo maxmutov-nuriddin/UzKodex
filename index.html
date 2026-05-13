@@ -9,6 +9,7 @@
     
     <!-- PWA meta tags -->
     <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="UzKodex">
@@ -28,7 +29,11 @@
                 <div class="logo-icon">UKX</div>
                 <div class="logo-text">
                     <h1>UzKodex</h1>
-                    <span>Все кодексы в 1 месте</span>
+                    <span id="logo-subtitle">Все кодексы в 1 месте</span>
+                </div>
+                <div class="lang-switch">
+                    <button class="lang-btn active" data-lang="ru">RU</button>
+                    <button class="lang-btn" data-lang="uz">UZ</button>
                 </div>
             </div>
             <div class="search-wrapper">
